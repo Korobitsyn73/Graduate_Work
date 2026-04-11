@@ -25,6 +25,7 @@ class MovieSearch:
         Метод search_film_by_name вызывается из теста test_ui.py/test_search_movie,
         метод вводит в поле поиска главной страницы портала Кинопоиск название фильма и нажатием кнопки поиска вызывает список результатов, соответствующих запросу.
         """
+        WebDriverWait(self.driver, 15).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input')))
         self.driver.find_element(By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input').send_keys('Мимино')
         self.driver.find_element(By.CSS_SELECTOR, 'svg.styles_icon__a6f9D.search-form-submit-button__icon').click()
 
@@ -32,12 +33,13 @@ class MovieSearch:
     def open_film(self):
         """
         Метод open_film вызывается из теста test_ui.py/test_search_movie,
-        выбирает фильм из списка результатов, кликом переходит на страницу фильма и дожидается появления кнопки 
+        выбирает фильм из списка результатов, кликом переходит на страницу фильма и дожидается появления кнопки
         "Смотреть фильм".
         """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[href="/film/46638/sr/1/"]')))
         self.driver.find_element(By.CSS_SELECTOR, '[href="/film/46638/sr/1/"]').click()
         WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.XPATH, "//*[text() = 'Смотреть фильм']")))
-        return self.driver.title
+        return self.driver.current_url
 
     @allure.step("Купить билет в кино")
     def by_ticket(self):
@@ -45,8 +47,13 @@ class MovieSearch:
         Метод by_ticket вызывается из теста test_ui.py/test_by_ticket,
         нажимает по локатору на кнопку "Билеты в кино", переходит на страницу с выбором фильма, нажимает на раздел выбранного фильма и переходит на его страницу, нажимает по локатору на кнопку "Купить билеты" и переходит на страницу "Афиша", для выбора сеансов.Возвращает для проверки текущий URL.
         """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[href="/lists/movies/movies-in-cinema/"]')))
         self.driver.find_element(By.CSS_SELECTOR, '[href="/lists/movies/movies-in-cinema/"]').click()
+
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-test-id="movie-list-item"]')))
         self.driver.find_element(By.CSS_SELECTOR, '[data-test-id="movie-list-item"]').click()
+
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[href="/film/6155731/afisha/city/1/"]')))
         self.driver.find_element(By.CSS_SELECTOR, '[href="/film/6155731/afisha/city/1/"]').click()
         return self.driver.current_url
 
@@ -56,6 +63,7 @@ class MovieSearch:
         Метод media_page вызывается из теста test_ui.py/test_media_page,
         Нажимает по локатору кнопку "Медиа" на главной странице портала Кинопоиск и переходит на страницу с медиа-материалами. Возвращает для проверки текущий URL.
         """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.XPATH, "//*[text() = 'Медиа']")))
         self.driver.find_element(By.XPATH, "//*[text() = 'Медиа']").click()
         return self.driver.current_url
 
@@ -65,8 +73,10 @@ class MovieSearch:
          Метод search_actor_by_name вызывается из теста test_ui.py/test_search_actor,
          метод вводит в поле поиска имя актёра, нажимает кнопку поиска, переходит на страницу с результатами, нажимает раздел с выбранным актёром и переходит на его персональную страницу.
         """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input')))
         self.driver.find_element(By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input').send_keys('Фрунзик')
         self.driver.find_element(By.CSS_SELECTOR, 'svg.styles_icon__a6f9D.search-form-submit-button__icon').click()
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.XPATH, "//*[text() = 'Фрунзик Мкртчян']")))
         self.driver.find_element(By.XPATH, "//*[text() = 'Фрунзик Мкртчян']").click()
 
     @allure.step("Ввести некорректный запрос в поле поиска")
@@ -75,5 +85,16 @@ class MovieSearch:
         Метод uncorrect_request вызывается из теста test_ui.py/test_uncorrect_request,
         метод вводит в поле поиска некорректный запрос, состоящий из букв, цифр и спецсимволов, нажимает кнопку поиска.
         """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input')))
         self.driver.find_element(By.CSS_SELECTOR, 'input.styles_input__WCRXt.kinopoisk-header-search-form-input__input').send_keys('%#*@^4g901j46;$%')
         self.driver.find_element(By.CSS_SELECTOR, 'svg.styles_icon__a6f9D.search-form-submit-button__icon').click()
+
+    @allure.step('Проверить что возвращается ожидаемый текст')
+    def get_text_no_result(self):
+        """
+        Метод uncorrect_request вызывается из теста test_ui.py/test_uncorrect_request,
+        метод проверяет, что открывается страница с ожидаемым текстом.
+        """
+        WebDriverWait(self.driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[height="75"]')))
+        text = self.driver.find_element(By.CSS_SELECTOR, '[height="75"]').text
+        return text

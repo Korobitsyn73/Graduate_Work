@@ -2,5 +2,3 @@ pytest
 selenium
 requests
 allure-pytest
-config
-flake8

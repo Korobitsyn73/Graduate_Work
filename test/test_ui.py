@@ -3,7 +3,7 @@ import allure
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from UIPage import MovieSearch
-from config import ticket_url, media_url
+from config import ticket_url, media_url, mimino_url
 
 
 driver = webdriver.Chrome()
@@ -17,18 +17,19 @@ driver = webdriver.Chrome()
 @allure.title("Выполнение стандартных действий")
 @allure.description("Нажатие кнопок, переход на страницы")
 @pytest.mark.ui
-def test_search_movie():
+def test_search_movie(driver):
     film = MovieSearch(driver)
     with allure.step("Найти в поиске фильм по названию"):
         film.search_film_by_name()
         with allure.step("Перейти на страницу фильма, для просмотра"):
-            film.open_film()
-            with allure.step("Проверить, что метод вернул правильный title фильма"):
-                assert driver.title('Мимино') in film.open_film()
+            current_url = film.open_film()
+            with allure.step("Проверить, что совершён переход на страницу с ожидаемым URL"):
+                expected_url = mimino_url
+                assert current_url == expected_url, f'Expected URL: {expected_url}, but got: {current_url}'
 
 
 @pytest.mark.ui
-def test_by_ticket():
+def test_by_ticket(driver):
     ticket = MovieSearch(driver)
     with allure.step("Купить билет в кино"):
         current_url = ticket.by_ticket()
@@ -38,7 +39,7 @@ def test_by_ticket():
 
 
 @pytest.mark.ui
-def test_media_page():
+def test_media_page(driver):
     media = MovieSearch(driver)
     with allure.step("Перейти с главной страницы на страницу с медиа-материалами"):
         current_url = media.media_page()
@@ -48,7 +49,7 @@ def test_media_page():
 
 
 @pytest.mark.ui
-def test_search_actor():
+def test_search_actor(driver):
     actor = MovieSearch(driver)
     with allure.step("Найти актёра по имени"):
         actor.search_actor_by_name()
@@ -59,11 +60,9 @@ def test_search_actor():
 
 
 @pytest.mark.ui
-def test_uncorrect_request():
+def test_uncorrect_request(driver):
     uncorrect = MovieSearch(driver)
     with allure.step("Запустить поиск по некорректным данным"):
         uncorrect.uncorrect_request()
         with allure.step("Проверить, что по запросу ничего не найдено"):
-            unassertion = driver.find_element(By.CSS_SELECTOR, '[height="75"]')
-            text = unassertion.text
-            assert text == 'К сожалению, по вашему запросу ничего не найдено...', f'Expected text: "К сожалению, по вашему запросу ничего не найдено...", but got: "{text}"'
+            assert uncorrect.get_text_no_result() == 'К сожалению, по вашему запросу ничего не найдено...', f'Expected text: "К сожалению, по вашему запросу ничего не найдено...", but got: "{uncorrect.get_text_no_result()}"'
